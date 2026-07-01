@@ -2,52 +2,68 @@
  * Backend del formulario "Registro de Votantes".
  * Guarda y administra registros en la pestaña "Registros" de tu Google Sheet.
  *
- * Acciones soportadas (llegan en el cuerpo JSON, campo "action"):
+ * Acciones (llegan en el cuerpo JSON, campo "action"):
  *   - create        : agrega un votante nuevo.
  *   - list          : devuelve los votantes de un líder (por su cédula).
  *   - update        : modifica un votante existente (por su ID).
  *   - delete        : elimina un votante (por su ID).
  *   - updateLider   : actualiza nombre/celular del líder en TODOS sus registros.
  *
- * CÓMO ACTUALIZARLO (si ya lo tenías instalado)
- * ---------------------------------------------
- * 1. Abre tu hoja → Extensiones → Apps Script.
- * 2. Reemplaza TODO el código por este archivo. Guarda (💾).
- * 3. Implementar → Gestionar implementaciones → (lápiz ✏️ Editar) →
- *      Versión: "Nueva versión" → Implementar.
- *    ⚠️ La URL (/exec) NO cambia, así que no tocas config.js.
+ * Cada fila guarda quién es el LÍDER (a nombre de quién van los votos) y
+ * quién DILIGENCIÓ el formulario (responsable), que no siempre es el líder.
+ *
+ * INSTALAR / ACTUALIZAR
+ * ---------------------
+ * 1. Tu hoja → Extensiones → Apps Script.
+ * 2. Reemplaza TODO por este archivo. Guarda (💾).
+ * 3. (Opcional) Para borrar todos los registros: en el editor, elige la función
+ *    "limpiarRegistros" en el menú desplegable de arriba y pulsa ▶ Ejecutar.
+ * 4. Implementar → Gestionar implementaciones → ✏️ Editar →
+ *    Versión: "Nueva versión" → Implementar.  (La URL /exec NO cambia.)
  */
 
 const SHEET_ID = '1hTnCuIuA8YAmA6KzUY1VaOJZUn91bKy6iDJlvty3i4A';
 const TAB = 'Registros';
 const HEADERS = [
-  'Marca temporal', 'Líder', 'Cédula líder', 'Celular líder',
+  'Marca temporal', 'Responsable (diligenció)', 'Cédula responsable',
+  'Líder', 'Cédula líder', 'Celular líder',
   'Votante', 'Cédula votante', 'Lugar de expedición', 'Celular votante',
   'Municipio', 'Puesto de votación', 'Profesión', 'ID'
 ];
-const COL_CEDULA_LIDER = 3;   // C
-const COL_VOTANTE_INI  = 5;   // E (primer campo editable del votante)
-const COL_ID           = 12;  // L
+const COL_CEDULA_LIDER = 5;   // E
+const COL_VOTANTE_INI  = 7;   // G  (7 columnas del votante: G..M)
+const COL_ID           = 14;  // N
 const N = HEADERS.length;
+const TEXT_COLS = ['C:C', 'E:E', 'F:F', 'H:H', 'J:J']; // cédulas y celulares como texto
 
-/** Devuelve la hoja "Registros" con encabezados y columnas de números como texto. */
 function sheet_() {
   const ss = SpreadsheetApp.openById(SHEET_ID);
   let sh = ss.getSheetByName(TAB);
   if (!sh) sh = ss.insertSheet(TAB);
   const head = sh.getRange(1, 1, 1, N).getValues()[0];
-  if (sh.getLastRow() === 0 || head[0] !== HEADERS[0] || head[COL_ID - 1] !== 'ID') {
+  if (sh.getLastRow() === 0 || head[COL_ID - 1] !== 'ID') {
     sh.getRange(1, 1, 1, N).setValues([HEADERS]);
-    // Cédulas y celulares como TEXTO (conserva ceros a la izquierda, evita notación científica)
-    ['C:C', 'D:D', 'F:F', 'H:H'].forEach(function (c) { sh.getRange(c).setNumberFormat('@'); });
+    TEXT_COLS.forEach(function (c) { sh.getRange(c).setNumberFormat('@'); });
     sh.setFrozenRows(1);
   }
   return sh;
 }
 
+/** Borra TODOS los registros y deja solo los encabezados. Ejecutar a mano. */
+function limpiarRegistros() {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  let sh = ss.getSheetByName(TAB);
+  if (!sh) sh = ss.insertSheet(TAB);
+  sh.clear();
+  sh.getRange(1, 1, 1, N).setValues([HEADERS]);
+  TEXT_COLS.forEach(function (c) { sh.getRange(c).setNumberFormat('@'); });
+  sh.setFrozenRows(1);
+  return 'Pestaña "Registros" limpia.';
+}
+
 function doPost(e) {
   const lock = LockService.getScriptLock();
-  lock.tryLock(20000); // evita choques si dos personas envían a la vez
+  lock.tryLock(20000);
   try {
     const body = JSON.parse(e.postData.contents || '{}');
     const action = body.action || 'create';
@@ -69,7 +85,6 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  // Respaldo: listar por GET  ?action=list&cedula=XXXX
   if (e && e.parameter && e.parameter.action === 'list') {
     return json_(listRecs_({ liderCedula: e.parameter.cedula }));
   }
@@ -84,8 +99,12 @@ function json_(o) {
 function createRec_(d) {
   const sh = sheet_();
   const id = Utilities.getUuid();
+  // Si no se indica responsable, se asume que diligenció el mismo líder.
+  const respNombre = d.responsableNombre || d.liderNombre || '';
+  const respCedula = d.responsableCedula || d.liderCedula || '';
   sh.appendRow([
-    new Date(), d.liderNombre || '', d.liderCedula || '', d.liderCelular || '',
+    new Date(), respNombre, respCedula,
+    d.liderNombre || '', d.liderCedula || '', d.liderCelular || '',
     d.votanteNombre || '', d.votanteCedula || '', d.lugarExpedicion || '', d.votanteCelular || '',
     d.municipio || '', d.puesto || '', d.profesion || '', id
   ]);
@@ -105,11 +124,12 @@ function listRecs_(d) {
   const votantes = [];
   rows.forEach(function (r) {
     if (String(r[COL_CEDULA_LIDER - 1]).trim() !== cedula) return;
-    if (!lider) lider = { liderNombre: r[1], liderCedula: String(r[2]), liderCelular: String(r[3]) };
+    if (!lider) lider = { liderNombre: r[3], liderCedula: String(r[4]), liderCelular: String(r[5]) };
     votantes.push({
       id: r[COL_ID - 1],
-      votanteNombre: r[4], votanteCedula: String(r[5]), lugarExpedicion: r[6],
-      votanteCelular: String(r[7]), municipio: r[8], puesto: r[9], profesion: r[10],
+      responsable: r[1], responsableCedula: String(r[2]),
+      votanteNombre: r[6], votanteCedula: String(r[7]), lugarExpedicion: r[8],
+      votanteCelular: String(r[9]), municipio: r[10], puesto: r[11], profesion: r[12],
       fecha: r[0] ? Utilities.formatDate(new Date(r[0]), tz, 'dd/MM/yyyy') : ''
     });
   });
@@ -154,8 +174,8 @@ function updateLider_(d) {
   let count = 0;
   for (let i = 0; i < rows.length; i++) {
     if (String(rows[i][COL_CEDULA_LIDER - 1]).trim() === cedula) {
-      rows[i][1] = d.liderNombre || rows[i][1]; // Líder
-      rows[i][3] = d.liderCelular || '';         // Celular líder
+      rows[i][3] = d.liderNombre || rows[i][3]; // Líder
+      rows[i][5] = d.liderCelular || '';         // Celular líder
       count++;
     }
   }

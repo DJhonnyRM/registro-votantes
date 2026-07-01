@@ -35,7 +35,6 @@
     header h1 { margin: 0; font-size: 1.35rem; }
     header p { margin: 6px 0 0; opacity: .9; font-size: .9rem; }
 
-    /* Tabs */
     .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
     .tab {
       flex: 1; padding: 11px; text-align: center; font-weight: 700; font-size: .92rem;
@@ -48,9 +47,14 @@
       padding: 18px; margin-bottom: 16px;
     }
     .card h2 { font-size: 1rem; margin: 0 0 4px; color: var(--azul-osc); display: flex; align-items: center; gap: 8px; }
-    .card .sub { font-size: .82rem; color: var(--gris); margin: 0 0 14px; }
+    .card .sub { font-size: .82rem; color: var(--gris); margin: 0 0 8px; }
+    .grp {
+      font-size: .78rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+      color: var(--gris); margin: 18px 0 2px; padding-top: 14px; border-top: 1px dashed var(--borde);
+    }
+    .grp:first-of-type { border-top: none; padding-top: 0; }
 
-    label { display: block; font-size: .9rem; font-weight: 600; margin: 14px 0 5px; }
+    label { display: block; font-size: .9rem; font-weight: 600; margin: 12px 0 5px; }
     label .req { color: var(--rojo); }
     label .opt { color: var(--gris); font-weight: 400; font-size: .8rem; }
     input {
@@ -60,12 +64,13 @@
     input:focus { outline: none; border-color: var(--azul); box-shadow: 0 0 0 3px rgba(30,95,168,.15); }
     input.bad { border-color: var(--rojo); }
     input[readonly] { background: #f1f5f9; color: #475569; }
+    .note { font-size: .78rem; color: var(--gris); margin-top: 4px; }
     .hint { font-size: .78rem; color: var(--rojo); margin-top: 4px; display: none; }
     input.bad ~ .hint { display: block; }
 
     .lider-lock {
       font-size: .8rem; color: var(--verde); background: #eafaf0; border: 1px solid #bce9cd;
-      border-radius: 8px; padding: 8px 10px; margin-top: 10px; display: none;
+      border-radius: 8px; padding: 8px 10px; margin-top: 14px; display: none;
     }
     .lider-lock.show { display: block; }
     a.link { color: var(--azul); cursor: pointer; text-decoration: underline; }
@@ -87,14 +92,11 @@
     .ok h2 { color: var(--verde); margin: 8px 0; }
     .ok p { color: var(--gris); margin: 0 0 20px; }
 
-    /* Lista "Mis votantes" */
     .lider-bar { background: #eef4fb; border: 1px solid #cfe0f2; border-radius: 12px; padding: 14px; margin-bottom: 14px; }
     .lider-bar .who { font-weight: 700; color: var(--azul-osc); }
     .lider-bar .meta { font-size: .82rem; color: var(--gris); margin-top: 2px; }
     .count { font-size: .82rem; color: var(--gris); margin: 4px 0 10px; }
-    .voter {
-      background: #fff; border: 1px solid var(--borde); border-radius: 12px; padding: 13px 14px; margin-bottom: 10px;
-    }
+    .voter { background: #fff; border: 1px solid var(--borde); border-radius: 12px; padding: 13px 14px; margin-bottom: 10px; }
     .voter .nm { font-weight: 700; }
     .voter .dt { font-size: .82rem; color: var(--gris); margin: 3px 0 10px; }
     .empty { text-align: center; color: var(--gris); padding: 20px; }
@@ -125,9 +127,10 @@
     <div id="viewReg">
       <form id="form" novalidate>
         <section class="card">
-          <h2>👤 Quién registra (líder)</h2>
-          <p class="sub">Se guarda en este dispositivo: no lo vuelves a escribir en el próximo votante.</p>
+          <h2>👤 Quién registra</h2>
+          <p class="sub">Se guarda en este dispositivo: no lo repites en el próximo votante.</p>
 
+          <div class="grp">Líder a cargo de los votos</div>
           <label>Nombre completo del líder <span class="req">*</span></label>
           <input id="liderNombre" autocomplete="name" required />
           <div class="hint">Escribe el nombre.</div>
@@ -140,8 +143,16 @@
           <input id="liderCelular" inputmode="numeric" pattern="[0-9]*" />
           <div class="hint">Solo números.</div>
 
+          <div class="grp">Diligenciado por</div>
+          <p class="note">Quién está llenando el formulario. Déjalo vacío si es el mismo líder.</p>
+          <label>Nombre de quien diligencia <span class="opt">(opcional)</span></label>
+          <input id="respNombre" />
+          <label>Cédula de quien diligencia <span class="opt">(opcional)</span></label>
+          <input id="respCedula" inputmode="numeric" pattern="[0-9]*" />
+          <div class="hint">Solo números.</div>
+
           <div id="liderLock" class="lider-lock">
-            ✅ Líder guardado en este dispositivo. <a class="link" id="changeLider">Cambiar líder</a>
+            ✅ Datos guardados en este dispositivo. <a class="link" id="changeLider">Cambiar</a>
           </div>
         </section>
 
@@ -188,34 +199,30 @@
 
     <!-- ============ VISTA: MIS VOTANTES ============ -->
     <div id="viewMine" class="hidden">
-      <!-- Buscar por cédula (dispositivo nuevo) -->
       <div id="mineLogin" class="card hidden">
         <h2>📋 Consultar mis votantes</h2>
-        <p class="sub">Escribe tu cédula de líder para ver y editar tus registros.</p>
+        <p class="sub">Escribe la cédula del líder para ver y editar sus registros.</p>
         <label>Cédula del líder <span class="req">*</span></label>
         <input id="loginCedula" inputmode="numeric" pattern="[0-9]*" />
         <div class="hint">Solo números.</div>
-        <button id="loginBtn" class="sec" style="margin-top:12px">Cargar mis votantes</button>
+        <button id="loginBtn" class="sec" style="margin-top:12px">Cargar votantes</button>
       </div>
 
-      <!-- Panel del líder + lista -->
       <div id="minePanel" class="hidden">
         <div class="lider-bar">
           <div class="who" id="lbName">—</div>
           <div class="meta" id="lbMeta">—</div>
           <div style="margin-top:10px" class="row-btns">
-            <button class="ghost" id="editLiderBtn">Editar mis datos</button>
+            <button class="ghost" id="editLiderBtn">Editar datos del líder</button>
             <button class="ghost" id="switchLiderBtn">Otro líder</button>
           </div>
         </div>
-
         <div class="count" id="mineCount"></div>
         <div id="voterList"></div>
       </div>
 
       <div id="mineSpin" class="spin hidden">Cargando…</div>
 
-      <!-- Editor de un votante -->
       <div id="editCard" class="card hidden">
         <h2 id="editTitle">✏️ Editar votante</h2>
         <div id="editFields"></div>
@@ -226,10 +233,9 @@
         <button class="danger" id="editDelete" style="margin-top:10px">🗑️ Eliminar este votante</button>
       </div>
 
-      <!-- Editor de datos del líder -->
       <div id="liderEditCard" class="card hidden">
-        <h2>✏️ Mis datos de líder</h2>
-        <p class="sub">Se actualizará en todos tus votantes registrados.</p>
+        <h2>✏️ Datos del líder</h2>
+        <p class="sub">Se actualizará en todos los votantes a su nombre.</p>
         <label>Nombre completo <span class="req">*</span></label>
         <input id="edLiderNombre" />
         <div class="hint">Escribe el nombre.</div>
@@ -250,7 +256,7 @@
   <script>
     // ---------- Config / helpers ----------
     const URL = window.ENDPOINT_URL || "";
-    const LIDER_FIELDS = ["liderNombre", "liderCedula", "liderCelular"];
+    const PERFIL_FIELDS = ["liderNombre", "liderCedula", "liderCelular", "respNombre", "respCedula"];
     const VOTANTE_DEF = [
       { k: "votanteNombre",   label: "Nombre completo del votante", req: true },
       { k: "votanteCedula",   label: "Número de cédula",            req: true, num: true },
@@ -271,33 +277,29 @@
       return true;
     }
     async function api(payload) {
-      const res = await fetch(URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
+      const res = await fetch(URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
       return res.json();
     }
 
-    // ---------- Título configurable ----------
+    // ---------- Título ----------
     if (window.CAMPAIGN_TITLE) { document.title = window.CAMPAIGN_TITLE; $("hTitle").textContent = window.CAMPAIGN_TITLE; }
     if (window.CAMPAIGN_SUBTITLE) $("hSub").textContent = window.CAMPAIGN_SUBTITLE;
 
-    // ---------- Líder guardado ----------
-    function getLider() { return JSON.parse(localStorage.getItem("lider") || "null"); }
-    function setLider(l) { localStorage.setItem("lider", JSON.stringify(l)); }
+    // ---------- Perfil guardado (líder + responsable) ----------
+    function getPerfil() { return JSON.parse(localStorage.getItem("perfil") || "null"); }
+    function setPerfil(p) { localStorage.setItem("perfil", JSON.stringify(p)); }
 
-    function loadLiderIntoForm() {
-      const l = getLider();
-      if (!l) return;
-      LIDER_FIELDS.forEach(f => { if (l[f] != null) $(f).value = l[f]; });
-      lockLider(true);
+    function loadPerfilIntoForm() {
+      const p = getPerfil();
+      if (!p) return;
+      PERFIL_FIELDS.forEach(f => { if (p[f] != null) $(f).value = p[f]; });
+      lockPerfil(true);
     }
-    function lockLider(on) {
-      LIDER_FIELDS.forEach(f => $(f).readOnly = on);
+    function lockPerfil(on) {
+      PERFIL_FIELDS.forEach(f => $(f).readOnly = on);
       $("liderLock").classList.toggle("show", on);
     }
-    $("changeLider").addEventListener("click", () => { lockLider(false); localStorage.removeItem("lider"); $("liderNombre").focus(); });
+    $("changeLider").addEventListener("click", () => { lockPerfil(false); localStorage.removeItem("perfil"); $("liderNombre").focus(); });
 
     // ---------- Tabs ----------
     function switchTab(which) {
@@ -316,7 +318,7 @@
     function validateReg() {
       let ok = true;
       ["liderNombre", "liderCedula", "votanteNombre", "votanteCedula", "puesto"].forEach(id => { ok = markBad($(id), $(id).value.trim() === "") && ok; });
-      ["liderCedula", "liderCelular", "votanteCedula", "votanteCelular"].forEach(id => { const el = $(id); if (el.value.trim() && !isNum(el.value)) ok = markBad(el, true) && ok; });
+      ["liderCedula", "liderCelular", "respCedula", "votanteCedula", "votanteCelular"].forEach(id => { const el = $(id); if (el.value.trim() && !isNum(el.value)) ok = markBad(el, true) && ok; });
       return ok;
     }
     $("form").addEventListener("input", e => e.target.classList.remove("bad"));
@@ -326,8 +328,11 @@
       if (!configured()) return;
 
       const data = { action: "create" };
-      [...LIDER_FIELDS, ...VOTANTE_DEF.map(f => f.k)].forEach(f => data[f] = $(f).value.trim());
-      setLider({ liderNombre: data.liderNombre, liderCedula: data.liderCedula, liderCelular: data.liderCelular });
+      [...PERFIL_FIELDS, ...VOTANTE_DEF.map(f => f.k)].forEach(f => data[f] = $(f).value.trim());
+      // Responsable: si va vacío, es el mismo líder.
+      data.responsableNombre = data.respNombre || data.liderNombre;
+      data.responsableCedula = data.respCedula || data.liderCedula;
+      setPerfil({ liderNombre: data.liderNombre, liderCedula: data.liderCedula, liderCelular: data.liderCelular, respNombre: data.respNombre, respCedula: data.respCedula });
 
       const btn = $("submitBtn"); btn.disabled = true; btn.textContent = "Guardando…";
       try {
@@ -342,7 +347,7 @@
     });
     $("another").addEventListener("click", () => {
       VOTANTE_DEF.forEach(f => $(f.k).value = "");
-      lockLider(true);
+      lockPerfil(true);
       $("ok").style.display = "none"; $("form").style.display = "block";
       $("votanteNombre").focus(); window.scrollTo({ top: 0, behavior: "smooth" });
     });
@@ -351,15 +356,13 @@
     let CURRENT = { cedula: null, lider: null, votantes: [] };
 
     function openMine() {
-      const l = getLider();
-      if (l && l.liderCedula) { CURRENT.cedula = l.liderCedula; fetchList(); }
+      const p = getPerfil();
+      if (p && p.liderCedula) { CURRENT.cedula = p.liderCedula; fetchList(); }
       else showLogin();
     }
     function showLogin() {
       $("mineLogin").classList.remove("hidden");
-      $("minePanel").classList.add("hidden");
-      $("editCard").classList.add("hidden");
-      $("liderEditCard").classList.add("hidden");
+      ["minePanel", "editCard", "liderEditCard"].forEach(id => $(id).classList.add("hidden"));
     }
     $("loginBtn").addEventListener("click", () => {
       const c = $("loginCedula").value.trim();
@@ -371,10 +374,7 @@
     async function fetchList() {
       if (!configured()) return;
       hideBanner();
-      $("mineLogin").classList.add("hidden");
-      $("minePanel").classList.add("hidden");
-      $("editCard").classList.add("hidden");
-      $("liderEditCard").classList.add("hidden");
+      ["mineLogin", "minePanel", "editCard", "liderEditCard"].forEach(id => $(id).classList.add("hidden"));
       $("mineSpin").classList.remove("hidden");
       try {
         const r = await api({ action: "list", liderCedula: CURRENT.cedula });
@@ -398,19 +398,19 @@
         $("lbMeta").textContent = "Aún sin votantes registrados";
       }
       const n = CURRENT.votantes.length;
-      $("mineCount").textContent = n + (n === 1 ? " votante a tu nombre" : " votantes a tu nombre");
+      $("mineCount").textContent = n + (n === 1 ? " votante a su nombre" : " votantes a su nombre");
       const list = $("voterList");
       list.innerHTML = "";
-      if (n === 0) { list.innerHTML = '<div class="empty">Todavía no has registrado votantes.</div>'; return; }
+      if (n === 0) { list.innerHTML = '<div class="empty">Todavía no hay votantes registrados.</div>'; return; }
+      const liderName = l ? (l.liderNombre || "") : "";
       CURRENT.votantes.forEach((v, i) => {
         const card = document.createElement("div");
         card.className = "voter";
-        card.innerHTML =
-          '<div class="nm"></div><div class="dt"></div>' +
-          '<div class="row-btns"><button class="ghost">✏️ Editar</button><button class="danger">🗑️ Eliminar</button></div>';
+        card.innerHTML = '<div class="nm"></div><div class="dt"></div><div class="row-btns"><button class="ghost">✏️ Editar</button><button class="danger">🗑️ Eliminar</button></div>';
         card.querySelector(".nm").textContent = v.votanteNombre || "(sin nombre)";
-        card.querySelector(".dt").textContent =
-          "CC " + v.votanteCedula + (v.puesto ? " · " + v.puesto : "") + (v.fecha ? " · " + v.fecha : "");
+        let dt = "CC " + v.votanteCedula + (v.puesto ? " · " + v.puesto : "") + (v.fecha ? " · " + v.fecha : "");
+        if (v.responsable && liderName && v.responsable.trim() !== liderName.trim()) dt += " · diligenció: " + v.responsable;
+        card.querySelector(".dt").textContent = dt;
         const btns = card.querySelectorAll("button");
         btns[0].addEventListener("click", () => openEdit(i));
         btns[1].addEventListener("click", () => doDelete(i));
@@ -490,19 +490,18 @@
       try {
         const r = await api({ action: "updateLider", liderCedula: CURRENT.cedula, liderNombre: nombre, liderCelular: cel });
         if (!r.ok) throw new Error(r.error || "error");
-        // refleja el cambio en este dispositivo si es el mismo líder
-        const saved = getLider();
-        if (saved && saved.liderCedula === CURRENT.cedula) setLider({ liderNombre: nombre, liderCedula: CURRENT.cedula, liderCelular: cel });
+        const p = getPerfil();
+        if (p && p.liderCedula === CURRENT.cedula) { p.liderNombre = nombre; p.liderCelular = cel; setPerfil(p); }
         $("liderEditCard").classList.add("hidden");
         await fetchList();
-      } catch (err) { showBanner("❌ No se pudo actualizar tus datos.", "err"); }
+      } catch (err) { showBanner("❌ No se pudo actualizar los datos.", "err"); }
       finally { btn.disabled = false; btn.textContent = "Guardar"; }
     });
     $("edLiderNombre").addEventListener("input", e => e.target.classList.remove("bad"));
     $("edLiderCelular").addEventListener("input", e => e.target.classList.remove("bad"));
 
     // ---------- init ----------
-    loadLiderIntoForm();
+    loadPerfilIntoForm();
   </script>
 </body>
 </html>

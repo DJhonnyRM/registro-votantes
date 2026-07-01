@@ -16,6 +16,10 @@ líder que no se vuelven a escribir** en cada registro.
 - **Pestaña "Mis votantes"**: cada líder entra con su cédula y puede **ver, editar
   o eliminar** los votantes a su nombre, y **actualizar sus propios datos** (nombre/
   celular) en todos sus registros a la vez.
+- **Responsable de diligenciar**: cada registro guarda quién llenó el formulario
+  (que no siempre es el líder). Si se deja vacío, se asume que es el mismo líder.
+- **Borrar todo**: en el editor de Apps Script, ejecuta la función `limpiarRegistros`
+  para dejar la pestaña "Registros" solo con los encabezados.
 - **Validación**: cédula y celular solo aceptan números; campos clave obligatorios.
   Las cédulas se guardan como **texto** (conservan ceros a la izquierda).
 - El **total de votos por líder** ya no se escribe a mano: se cuenta solo en la hoja
