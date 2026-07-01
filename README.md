@@ -6,24 +6,26 @@ líder que no se vuelven a escribir** en cada registro.
 
 **Formulario:** https://djhonnyrm.github.io/registro-votantes/
 
-## Qué mejora frente al Google Form anterior
+## Modelo: una persona por registro
 
-- De **24 campos → 10**. Se quitó el bloque de datos duplicado y el bloque de
-  "compromiso/seguimiento" (eso se lleva aparte en la hoja).
-- El **líder se guarda en el dispositivo**: solo lo escribe una vez y queda fijo.
-- Botón **"Registrar otro votante"**: limpia solo los datos del votante y deja
-  el líder listo → registro en cadena, muy rápido desde el celular.
+Cada envío registra a **una persona** con su **rol** (Líder Familiar / Líder
+Comunitario / Votante), ligada a un **líder a cargo de los votos**, y con un
+**compromiso opcional**. Reemplaza el Google Form de 6 secciones sin perder nada.
+
+- **Rol**: si es **Votante**, con los datos personales basta. Los líderes acumulan
+  votantes que se **cuentan solos** (adiós "total votos a su cargo" a mano).
+- **Quién registra** se guarda en el dispositivo: **líder a cargo** + **responsable
+  de diligenciar** (que no siempre es el líder; si va vacío, se asume el líder).
+  No se reescriben en el siguiente registro → registro en cadena rápido.
+- **Compromiso opcional**: ¿sí/no? + descripción, plazo, estado y fecha. El
+  **estado del cumplimiento se puede editar después** desde "Mis votantes".
 - **Pestaña "Mis votantes"**: cada líder entra con su cédula y puede **ver, editar
-  o eliminar** los votantes a su nombre, y **actualizar sus propios datos** (nombre/
-  celular) en todos sus registros a la vez.
-- **Responsable de diligenciar**: cada registro guarda quién llenó el formulario
-  (que no siempre es el líder). Si se deja vacío, se asume que es el mismo líder.
-- **Borrar todo**: en el editor de Apps Script, ejecuta la función `limpiarRegistros`
-  para dejar la pestaña "Registros" solo con los encabezados.
-- **Validación**: cédula y celular solo aceptan números; campos clave obligatorios.
-  Las cédulas se guardan como **texto** (conservan ceros a la izquierda).
-- El **total de votos por líder** ya no se escribe a mano: se cuenta solo en la hoja
-  (una fila = un votante).
+  o eliminar** sus registros, y **actualizar sus propios datos** (nombre/celular)
+  en todos ellos a la vez.
+- **Validación**: cédulas y teléfonos solo números y se guardan como **texto**
+  (conservan ceros a la izquierda).
+- **Roles, plazos y estados** son configurables en [`config.js`](config.js).
+- **Borrar todo**: en el editor de Apps Script, ejecuta la función `limpiarRegistros`.
 
 ## Puesta en marcha (una sola vez)
 
@@ -50,4 +52,4 @@ líder que no se vuelven a escribir** en cada registro.
   cada envío va directo a tu Google Sheet privada.
 - La página lleva `noindex` para no aparecer en buscadores.
 - Contar votos por líder en la hoja: usa una tabla dinámica o
-  `=CONTAR.SI(Registros!B:B; "Nombre del líder")`.
+  `=CONTAR.SI(Registros!E:E; "cédula del líder")` (columna E = Cédula líder).
