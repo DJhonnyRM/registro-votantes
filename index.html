@@ -10,10 +10,10 @@
       --azul: #1e5fa8;
       --azul-osc: #164a83;
       --verde: #16a34a;
+      --rojo: #dc2626;
       --gris: #64748b;
       --borde: #d7dde5;
       --bg: #f4f6f9;
-      --error: #dc2626;
     }
     * { box-sizing: border-box; }
     body {
@@ -30,145 +30,217 @@
       text-align: center;
       padding: 22px 16px;
       border-radius: 14px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     header h1 { margin: 0; font-size: 1.35rem; }
     header p { margin: 6px 0 0; opacity: .9; font-size: .9rem; }
+
+    /* Tabs */
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab {
+      flex: 1; padding: 11px; text-align: center; font-weight: 700; font-size: .92rem;
+      background: #fff; border: 1px solid var(--borde); border-radius: 10px; cursor: pointer; color: var(--gris);
+    }
+    .tab.active { background: var(--azul); color: #fff; border-color: var(--azul); }
+
     .card {
-      background: #fff;
-      border: 1px solid var(--borde);
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 16px;
+      background: #fff; border: 1px solid var(--borde); border-radius: 14px;
+      padding: 18px; margin-bottom: 16px;
     }
-    .card h2 {
-      font-size: 1rem;
-      margin: 0 0 4px;
-      color: var(--azul-osc);
-      display: flex; align-items: center; gap: 8px;
-    }
+    .card h2 { font-size: 1rem; margin: 0 0 4px; color: var(--azul-osc); display: flex; align-items: center; gap: 8px; }
     .card .sub { font-size: .82rem; color: var(--gris); margin: 0 0 14px; }
+
     label { display: block; font-size: .9rem; font-weight: 600; margin: 14px 0 5px; }
-    label .req { color: var(--error); }
+    label .req { color: var(--rojo); }
     label .opt { color: var(--gris); font-weight: 400; font-size: .8rem; }
     input {
-      width: 100%;
-      padding: 12px 13px;
-      font-size: 1rem;
-      border: 1px solid var(--borde);
-      border-radius: 10px;
-      background: #fff;
-      -webkit-appearance: none;
+      width: 100%; padding: 12px 13px; font-size: 1rem;
+      border: 1px solid var(--borde); border-radius: 10px; background: #fff; -webkit-appearance: none;
     }
     input:focus { outline: none; border-color: var(--azul); box-shadow: 0 0 0 3px rgba(30,95,168,.15); }
-    input.bad { border-color: var(--error); }
-    .hint { font-size: .78rem; color: var(--error); margin-top: 4px; display: none; }
-    input.bad + .hint { display: block; }
-    .lider-lock { font-size: .8rem; color: var(--verde); background: #eafaf0; border: 1px solid #bce9cd; border-radius: 8px; padding: 8px 10px; margin-top: 10px; display: none; }
+    input.bad { border-color: var(--rojo); }
+    input[readonly] { background: #f1f5f9; color: #475569; }
+    .hint { font-size: .78rem; color: var(--rojo); margin-top: 4px; display: none; }
+    input.bad ~ .hint { display: block; }
+
+    .lider-lock {
+      font-size: .8rem; color: var(--verde); background: #eafaf0; border: 1px solid #bce9cd;
+      border-radius: 8px; padding: 8px 10px; margin-top: 10px; display: none;
+    }
     .lider-lock.show { display: block; }
-    .lider-lock a { color: var(--azul); cursor: pointer; text-decoration: underline; }
+    a.link { color: var(--azul); cursor: pointer; text-decoration: underline; }
+
     button {
-      width: 100%;
-      padding: 15px;
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #fff;
-      background: var(--verde);
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      margin-top: 4px;
+      width: 100%; padding: 15px; font-size: 1.05rem; font-weight: 700; color: #fff;
+      background: var(--verde); border: none; border-radius: 12px; cursor: pointer; margin-top: 4px;
     }
     button:active { transform: translateY(1px); }
     button:disabled { opacity: .6; cursor: default; }
-    .ok {
-      display: none;
-      text-align: center;
-      background: #fff;
-      border: 1px solid var(--borde);
-      border-radius: 14px;
-      padding: 30px 20px;
-    }
+    button.sec { background: var(--azul); }
+    button.ghost { background: #fff; color: var(--azul); border: 1px solid var(--azul); }
+    button.danger { background: #fff; color: var(--rojo); border: 1px solid var(--rojo); }
+    .row-btns { display: flex; gap: 8px; }
+    .row-btns button { font-size: .9rem; padding: 10px; }
+
+    .ok { display: none; text-align: center; background: #fff; border: 1px solid var(--borde); border-radius: 14px; padding: 30px 20px; }
     .ok .check { font-size: 3rem; }
     .ok h2 { color: var(--verde); margin: 8px 0; }
     .ok p { color: var(--gris); margin: 0 0 20px; }
-    .ok button { background: var(--azul); }
+
+    /* Lista "Mis votantes" */
+    .lider-bar { background: #eef4fb; border: 1px solid #cfe0f2; border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+    .lider-bar .who { font-weight: 700; color: var(--azul-osc); }
+    .lider-bar .meta { font-size: .82rem; color: var(--gris); margin-top: 2px; }
+    .count { font-size: .82rem; color: var(--gris); margin: 4px 0 10px; }
+    .voter {
+      background: #fff; border: 1px solid var(--borde); border-radius: 12px; padding: 13px 14px; margin-bottom: 10px;
+    }
+    .voter .nm { font-weight: 700; }
+    .voter .dt { font-size: .82rem; color: var(--gris); margin: 3px 0 10px; }
+    .empty { text-align: center; color: var(--gris); padding: 20px; }
+    .spin { text-align: center; color: var(--gris); padding: 24px; }
+
+    .banner { display:none; font-size:.85rem; padding:10px 12px; border-radius:10px; margin-bottom:14px; }
+    .banner.err { background:#fdecec; border:1px solid #f5c2c2; color:#a11; }
+    .banner.warn { background:#fff4e5; border:1px solid #ffd8a8; color:#8a5a00; }
     footer { text-align: center; font-size: .76rem; color: var(--gris); padding: 8px 0 24px; }
-    .banner { display:none; background:#fff4e5; border:1px solid #ffd8a8; color:#8a5a00; font-size:.82rem; padding:10px 12px; border-radius:10px; margin-bottom:14px; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1>Registro de Votantes</h1>
-      <p>Diligencia un votante por cada envío</p>
+      <h1 id="hTitle">Registro de Votantes</h1>
+      <p id="hSub">Diligencia un votante por cada envío</p>
     </header>
+
+    <div class="tabs">
+      <div class="tab active" id="tabReg">➕ Registrar</div>
+      <div class="tab" id="tabMine">📋 Mis votantes</div>
+    </div>
 
     <div id="banner" class="banner"></div>
 
-    <form id="form" novalidate>
-      <!-- ====== DATOS DEL LÍDER ====== -->
-      <section class="card">
-        <h2>👤 Quién registra (líder)</h2>
-        <p class="sub">Se guarda en este dispositivo: no lo vuelves a escribir en el próximo votante.</p>
+    <!-- ============ VISTA: REGISTRAR ============ -->
+    <div id="viewReg">
+      <form id="form" novalidate>
+        <section class="card">
+          <h2>👤 Quién registra (líder)</h2>
+          <p class="sub">Se guarda en este dispositivo: no lo vuelves a escribir en el próximo votante.</p>
 
-        <label>Nombre completo del líder <span class="req">*</span></label>
-        <input id="liderNombre" name="liderNombre" autocomplete="name" required />
-        <div class="hint">Escribe el nombre.</div>
+          <label>Nombre completo del líder <span class="req">*</span></label>
+          <input id="liderNombre" autocomplete="name" required />
+          <div class="hint">Escribe el nombre.</div>
 
+          <label>Cédula del líder <span class="req">*</span></label>
+          <input id="liderCedula" inputmode="numeric" pattern="[0-9]*" required />
+          <div class="hint">Solo números.</div>
+
+          <label>Celular del líder <span class="opt">(opcional)</span></label>
+          <input id="liderCelular" inputmode="numeric" pattern="[0-9]*" />
+          <div class="hint">Solo números.</div>
+
+          <div id="liderLock" class="lider-lock">
+            ✅ Líder guardado en este dispositivo. <a class="link" id="changeLider">Cambiar líder</a>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>🗳️ Datos del votante</h2>
+          <p class="sub">La persona que estás registrando.</p>
+
+          <label>Nombre completo del votante <span class="req">*</span></label>
+          <input id="votanteNombre" required />
+          <div class="hint">Escribe el nombre.</div>
+
+          <label>Número de cédula <span class="req">*</span></label>
+          <input id="votanteCedula" inputmode="numeric" pattern="[0-9]*" required />
+          <div class="hint">Solo números.</div>
+
+          <label>Lugar de expedición <span class="opt">(opcional)</span></label>
+          <input id="lugarExpedicion" />
+
+          <label>Celular <span class="opt">(opcional)</span></label>
+          <input id="votanteCelular" inputmode="numeric" pattern="[0-9]*" />
+          <div class="hint">Solo números.</div>
+
+          <label>Municipio donde vive <span class="opt">(opcional)</span></label>
+          <input id="municipio" />
+
+          <label>Puesto / lugar de votación <span class="req">*</span></label>
+          <input id="puesto" required />
+          <div class="hint">Escribe el puesto de votación.</div>
+
+          <label>Profesión / oficio <span class="opt">(opcional)</span></label>
+          <input id="profesion" />
+        </section>
+
+        <button type="submit" id="submitBtn">Registrar votante</button>
+      </form>
+
+      <div id="ok" class="ok">
+        <div class="check">✅</div>
+        <h2>Votante registrado</h2>
+        <p id="okName"></p>
+        <button id="another" class="sec">Registrar otro votante</button>
+      </div>
+    </div>
+
+    <!-- ============ VISTA: MIS VOTANTES ============ -->
+    <div id="viewMine" class="hidden">
+      <!-- Buscar por cédula (dispositivo nuevo) -->
+      <div id="mineLogin" class="card hidden">
+        <h2>📋 Consultar mis votantes</h2>
+        <p class="sub">Escribe tu cédula de líder para ver y editar tus registros.</p>
         <label>Cédula del líder <span class="req">*</span></label>
-        <input id="liderCedula" name="liderCedula" inputmode="numeric" pattern="[0-9]*" required />
+        <input id="loginCedula" inputmode="numeric" pattern="[0-9]*" />
         <div class="hint">Solo números.</div>
+        <button id="loginBtn" class="sec" style="margin-top:12px">Cargar mis votantes</button>
+      </div>
 
-        <label>Celular del líder <span class="opt">(opcional)</span></label>
-        <input id="liderCelular" name="liderCelular" inputmode="numeric" pattern="[0-9]*" />
-        <div class="hint">Solo números.</div>
-
-        <div id="liderLock" class="lider-lock">
-          ✅ Líder registrado en este dispositivo. <a id="changeLider">Cambiar líder</a>
+      <!-- Panel del líder + lista -->
+      <div id="minePanel" class="hidden">
+        <div class="lider-bar">
+          <div class="who" id="lbName">—</div>
+          <div class="meta" id="lbMeta">—</div>
+          <div style="margin-top:10px" class="row-btns">
+            <button class="ghost" id="editLiderBtn">Editar mis datos</button>
+            <button class="ghost" id="switchLiderBtn">Otro líder</button>
+          </div>
         </div>
-      </section>
 
-      <!-- ====== DATOS DEL VOTANTE ====== -->
-      <section class="card">
-        <h2>🗳️ Datos del votante</h2>
-        <p class="sub">La persona que estás registrando.</p>
+        <div class="count" id="mineCount"></div>
+        <div id="voterList"></div>
+      </div>
 
-        <label>Nombre completo del votante <span class="req">*</span></label>
-        <input id="votanteNombre" name="votanteNombre" autocomplete="off" required />
+      <div id="mineSpin" class="spin hidden">Cargando…</div>
+
+      <!-- Editor de un votante -->
+      <div id="editCard" class="card hidden">
+        <h2 id="editTitle">✏️ Editar votante</h2>
+        <div id="editFields"></div>
+        <div class="row-btns" style="margin-top:16px">
+          <button class="ghost" id="editCancel">Cancelar</button>
+          <button class="sec" id="editSave">Guardar cambios</button>
+        </div>
+        <button class="danger" id="editDelete" style="margin-top:10px">🗑️ Eliminar este votante</button>
+      </div>
+
+      <!-- Editor de datos del líder -->
+      <div id="liderEditCard" class="card hidden">
+        <h2>✏️ Mis datos de líder</h2>
+        <p class="sub">Se actualizará en todos tus votantes registrados.</p>
+        <label>Nombre completo <span class="req">*</span></label>
+        <input id="edLiderNombre" />
         <div class="hint">Escribe el nombre.</div>
-
-        <label>Número de cédula <span class="req">*</span></label>
-        <input id="votanteCedula" name="votanteCedula" inputmode="numeric" pattern="[0-9]*" required />
-        <div class="hint">Solo números.</div>
-
-        <label>Lugar de expedición <span class="opt">(opcional)</span></label>
-        <input id="lugarExpedicion" name="lugarExpedicion" />
-
         <label>Celular <span class="opt">(opcional)</span></label>
-        <input id="votanteCelular" name="votanteCelular" inputmode="numeric" pattern="[0-9]*" />
+        <input id="edLiderCelular" inputmode="numeric" pattern="[0-9]*" />
         <div class="hint">Solo números.</div>
-
-        <label>Municipio donde vive <span class="opt">(opcional)</span></label>
-        <input id="municipio" name="municipio" />
-
-        <label>Puesto / lugar de votación <span class="req">*</span></label>
-        <input id="puesto" name="puesto" required />
-        <div class="hint">Escribe el puesto de votación.</div>
-
-        <label>Profesión / oficio <span class="opt">(opcional)</span></label>
-        <input id="profesion" name="profesion" />
-      </section>
-
-      <button type="submit" id="submitBtn">Registrar votante</button>
-    </form>
-
-    <!-- ====== PANTALLA DE ÉXITO ====== -->
-    <div id="ok" class="ok">
-      <div class="check">✅</div>
-      <h2>Votante registrado</h2>
-      <p id="okName"></p>
-      <button id="another">Registrar otro votante</button>
+        <div class="row-btns" style="margin-top:16px">
+          <button class="ghost" id="liderEditCancel">Cancelar</button>
+          <button class="sec" id="liderEditSave">Guardar</button>
+        </div>
+      </div>
     </div>
 
     <footer>Los datos se guardan de forma privada en la hoja del equipo.</footer>
@@ -176,104 +248,261 @@
 
   <script src="config.js"></script>
   <script>
+    // ---------- Config / helpers ----------
+    const URL = window.ENDPOINT_URL || "";
     const LIDER_FIELDS = ["liderNombre", "liderCedula", "liderCelular"];
-    const VOTANTE_FIELDS = ["votanteNombre","votanteCedula","lugarExpedicion","votanteCelular","municipio","puesto","profesion"];
-    const form = document.getElementById("form");
-    const okBox = document.getElementById("ok");
-    const banner = document.getElementById("banner");
+    const VOTANTE_DEF = [
+      { k: "votanteNombre",   label: "Nombre completo del votante", req: true },
+      { k: "votanteCedula",   label: "Número de cédula",            req: true, num: true },
+      { k: "lugarExpedicion", label: "Lugar de expedición",         opt: true },
+      { k: "votanteCelular",  label: "Celular",                     opt: true, num: true },
+      { k: "municipio",       label: "Municipio donde vive",        opt: true },
+      { k: "puesto",          label: "Puesto / lugar de votación",  req: true },
+      { k: "profesion",       label: "Profesión / oficio",          opt: true }
+    ];
+    const $ = id => document.getElementById(id);
+    const banner = $("banner");
+    function showBanner(msg, kind) { banner.textContent = msg; banner.className = "banner " + (kind || "warn"); banner.style.display = "block"; }
+    function hideBanner() { banner.style.display = "none"; }
+    const isNum = v => /^[0-9]+$/.test(String(v).trim());
 
-    // --- Restaurar líder guardado ---
-    function loadLider() {
-      const saved = JSON.parse(localStorage.getItem("lider") || "null");
-      if (saved) {
-        LIDER_FIELDS.forEach(f => { if (saved[f] != null) document.getElementById(f).value = saved[f]; });
-        lockLider(true);
-      }
+    function configured() {
+      if (!URL || URL.includes("PEGA_AQUI")) { showBanner("⚠️ Falta configurar la URL del Apps Script en config.js.", "warn"); return false; }
+      return true;
+    }
+    async function api(payload) {
+      const res = await fetch(URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      return res.json();
+    }
+
+    // ---------- Título configurable ----------
+    if (window.CAMPAIGN_TITLE) { document.title = window.CAMPAIGN_TITLE; $("hTitle").textContent = window.CAMPAIGN_TITLE; }
+    if (window.CAMPAIGN_SUBTITLE) $("hSub").textContent = window.CAMPAIGN_SUBTITLE;
+
+    // ---------- Líder guardado ----------
+    function getLider() { return JSON.parse(localStorage.getItem("lider") || "null"); }
+    function setLider(l) { localStorage.setItem("lider", JSON.stringify(l)); }
+
+    function loadLiderIntoForm() {
+      const l = getLider();
+      if (!l) return;
+      LIDER_FIELDS.forEach(f => { if (l[f] != null) $(f).value = l[f]; });
+      lockLider(true);
     }
     function lockLider(on) {
-      LIDER_FIELDS.forEach(f => document.getElementById(f).readOnly = on);
-      document.getElementById("liderLock").classList.toggle("show", on);
+      LIDER_FIELDS.forEach(f => $(f).readOnly = on);
+      $("liderLock").classList.toggle("show", on);
     }
-    document.getElementById("changeLider").addEventListener("click", () => {
-      lockLider(false);
-      localStorage.removeItem("lider");
-      document.getElementById("liderNombre").focus();
-    });
+    $("changeLider").addEventListener("click", () => { lockLider(false); localStorage.removeItem("lider"); $("liderNombre").focus(); });
 
-    // --- Validación simple ---
+    // ---------- Tabs ----------
+    function switchTab(which) {
+      hideBanner();
+      $("tabReg").classList.toggle("active", which === "reg");
+      $("tabMine").classList.toggle("active", which === "mine");
+      $("viewReg").classList.toggle("hidden", which !== "reg");
+      $("viewMine").classList.toggle("hidden", which !== "mine");
+      if (which === "mine") openMine();
+    }
+    $("tabReg").addEventListener("click", () => switchTab("reg"));
+    $("tabMine").addEventListener("click", () => switchTab("mine"));
+
+    // ---------- Validación / envío (Registrar) ----------
     function markBad(el, bad) { el.classList.toggle("bad", bad); return !bad; }
-    function isNum(v) { return /^[0-9]+$/.test(v.trim()); }
-
-    function validate() {
+    function validateReg() {
       let ok = true;
-      const req = ["liderNombre","liderCedula","votanteNombre","votanteCedula","puesto"];
-      req.forEach(id => {
-        const el = document.getElementById(id);
-        ok = markBad(el, el.value.trim() === "") && ok;
-      });
-      ["liderCedula","liderCelular","votanteCedula","votanteCelular"].forEach(id => {
-        const el = document.getElementById(id);
-        if (el.value.trim() !== "" && !isNum(el.value)) ok = markBad(el, true) && ok;
-      });
+      ["liderNombre", "liderCedula", "votanteNombre", "votanteCedula", "puesto"].forEach(id => { ok = markBad($(id), $(id).value.trim() === "") && ok; });
+      ["liderCedula", "liderCelular", "votanteCedula", "votanteCelular"].forEach(id => { const el = $(id); if (el.value.trim() && !isNum(el.value)) ok = markBad(el, true) && ok; });
       return ok;
     }
-    form.addEventListener("input", e => { if (e.target.classList.contains("bad")) e.target.classList.remove("bad"); });
+    $("form").addEventListener("input", e => e.target.classList.remove("bad"));
+    $("form").addEventListener("submit", async (e) => {
+      e.preventDefault(); hideBanner();
+      if (!validateReg()) { document.querySelector(".bad")?.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
+      if (!configured()) return;
 
-    // --- Envío ---
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      banner.style.display = "none";
-      if (!validate()) {
-        document.querySelector(".bad")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        return;
-      }
-      if (!window.ENDPOINT_URL || window.ENDPOINT_URL.includes("PEGA_AQUI")) {
-        banner.textContent = "⚠️ Falta configurar la URL del Apps Script en config.js. Revisa el README.";
-        banner.style.display = "block";
-        return;
-      }
+      const data = { action: "create" };
+      [...LIDER_FIELDS, ...VOTANTE_DEF.map(f => f.k)].forEach(f => data[f] = $(f).value.trim());
+      setLider({ liderNombre: data.liderNombre, liderCedula: data.liderCedula, liderCelular: data.liderCelular });
 
-      const data = {};
-      [...LIDER_FIELDS, ...VOTANTE_FIELDS].forEach(f => data[f] = document.getElementById(f).value.trim());
-
-      // Guardar líder para el próximo registro
-      const lider = {}; LIDER_FIELDS.forEach(f => lider[f] = data[f]);
-      localStorage.setItem("lider", JSON.stringify(lider));
-
-      const btn = document.getElementById("submitBtn");
-      btn.disabled = true; btn.textContent = "Guardando...";
-
+      const btn = $("submitBtn"); btn.disabled = true; btn.textContent = "Guardando…";
       try {
-        await fetch(window.ENDPOINT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(data)
-        });
-        // Con no-cors no se puede leer la respuesta: asumimos éxito.
-        document.getElementById("okName").textContent = data.votanteNombre;
-        form.style.display = "none";
-        okBox.style.display = "block";
+        const r = await api(data);
+        if (!r.ok) throw new Error(r.error || "error");
+        $("okName").textContent = data.votanteNombre;
+        $("form").style.display = "none"; $("ok").style.display = "block";
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
-        banner.textContent = "❌ No se pudo enviar. Revisa tu conexión e intenta de nuevo.";
-        banner.style.display = "block";
-      } finally {
-        btn.disabled = false; btn.textContent = "Registrar votante";
-      }
+        showBanner("❌ No se pudo guardar. Revisa tu conexión e intenta de nuevo.", "err");
+      } finally { btn.disabled = false; btn.textContent = "Registrar votante"; }
+    });
+    $("another").addEventListener("click", () => {
+      VOTANTE_DEF.forEach(f => $(f.k).value = "");
+      lockLider(true);
+      $("ok").style.display = "none"; $("form").style.display = "block";
+      $("votanteNombre").focus(); window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    // --- "Registrar otro": limpia solo el votante, conserva el líder ---
-    document.getElementById("another").addEventListener("click", () => {
-      VOTANTE_FIELDS.forEach(f => document.getElementById(f).value = "");
-      lockLider(true);
-      okBox.style.display = "none";
-      form.style.display = "block";
-      document.getElementById("votanteNombre").focus();
+    // ========== VISTA MIS VOTANTES ==========
+    let CURRENT = { cedula: null, lider: null, votantes: [] };
+
+    function openMine() {
+      const l = getLider();
+      if (l && l.liderCedula) { CURRENT.cedula = l.liderCedula; fetchList(); }
+      else showLogin();
+    }
+    function showLogin() {
+      $("mineLogin").classList.remove("hidden");
+      $("minePanel").classList.add("hidden");
+      $("editCard").classList.add("hidden");
+      $("liderEditCard").classList.add("hidden");
+    }
+    $("loginBtn").addEventListener("click", () => {
+      const c = $("loginCedula").value.trim();
+      if (!isNum(c)) { showBanner("Escribe una cédula válida (solo números).", "warn"); return; }
+      CURRENT.cedula = c; fetchList();
+    });
+    $("switchLiderBtn").addEventListener("click", () => { $("loginCedula").value = ""; showLogin(); });
+
+    async function fetchList() {
+      if (!configured()) return;
+      hideBanner();
+      $("mineLogin").classList.add("hidden");
+      $("minePanel").classList.add("hidden");
+      $("editCard").classList.add("hidden");
+      $("liderEditCard").classList.add("hidden");
+      $("mineSpin").classList.remove("hidden");
+      try {
+        const r = await api({ action: "list", liderCedula: CURRENT.cedula });
+        if (!r.ok) throw new Error(r.error || "error");
+        CURRENT.lider = r.lider; CURRENT.votantes = r.votantes || [];
+        renderPanel();
+      } catch (err) {
+        showBanner("❌ No se pudo cargar. Intenta de nuevo.", "err");
+        showLogin();
+      } finally { $("mineSpin").classList.add("hidden"); }
+    }
+
+    function renderPanel() {
+      $("minePanel").classList.remove("hidden");
+      const l = CURRENT.lider;
+      if (l) {
+        $("lbName").textContent = l.liderNombre || "(sin nombre)";
+        $("lbMeta").textContent = "Cédula " + l.liderCedula + (l.liderCelular ? " · Cel " + l.liderCelular : "");
+      } else {
+        $("lbName").textContent = "Cédula " + CURRENT.cedula;
+        $("lbMeta").textContent = "Aún sin votantes registrados";
+      }
+      const n = CURRENT.votantes.length;
+      $("mineCount").textContent = n + (n === 1 ? " votante a tu nombre" : " votantes a tu nombre");
+      const list = $("voterList");
+      list.innerHTML = "";
+      if (n === 0) { list.innerHTML = '<div class="empty">Todavía no has registrado votantes.</div>'; return; }
+      CURRENT.votantes.forEach((v, i) => {
+        const card = document.createElement("div");
+        card.className = "voter";
+        card.innerHTML =
+          '<div class="nm"></div><div class="dt"></div>' +
+          '<div class="row-btns"><button class="ghost">✏️ Editar</button><button class="danger">🗑️ Eliminar</button></div>';
+        card.querySelector(".nm").textContent = v.votanteNombre || "(sin nombre)";
+        card.querySelector(".dt").textContent =
+          "CC " + v.votanteCedula + (v.puesto ? " · " + v.puesto : "") + (v.fecha ? " · " + v.fecha : "");
+        const btns = card.querySelectorAll("button");
+        btns[0].addEventListener("click", () => openEdit(i));
+        btns[1].addEventListener("click", () => doDelete(i));
+        list.appendChild(card);
+      });
+    }
+
+    // ---- Editar votante ----
+    function openEdit(i) {
+      const v = CURRENT.votantes[i];
+      $("editTitle").textContent = "✏️ Editar votante";
+      const box = $("editFields"); box.innerHTML = "";
+      VOTANTE_DEF.forEach(f => {
+        const lab = document.createElement("label");
+        lab.innerHTML = f.label + (f.req ? ' <span class="req">*</span>' : ' <span class="opt">(opcional)</span>');
+        const inp = document.createElement("input");
+        inp.id = "ed_" + f.k; inp.value = v[f.k] || "";
+        if (f.num) { inp.inputMode = "numeric"; inp.pattern = "[0-9]*"; }
+        const hint = document.createElement("div"); hint.className = "hint"; hint.textContent = f.num ? "Solo números." : "Campo obligatorio.";
+        inp.addEventListener("input", () => inp.classList.remove("bad"));
+        box.appendChild(lab); box.appendChild(inp); box.appendChild(hint);
+      });
+      $("editSave").dataset.id = v.id;
+      $("editDelete").dataset.idx = i;
+      $("minePanel").classList.add("hidden");
+      $("editCard").classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    $("editCancel").addEventListener("click", () => { $("editCard").classList.add("hidden"); $("minePanel").classList.remove("hidden"); });
+    $("editSave").addEventListener("click", async () => {
+      let ok = true;
+      VOTANTE_DEF.forEach(f => {
+        const el = $("ed_" + f.k);
+        if (f.req && el.value.trim() === "") ok = markBad(el, true) && ok;
+        if (f.num && el.value.trim() && !isNum(el.value)) ok = markBad(el, true) && ok;
+      });
+      if (!ok) return;
+      const payload = { action: "update", id: $("editSave").dataset.id };
+      VOTANTE_DEF.forEach(f => payload[f.k] = $("ed_" + f.k).value.trim());
+      const btn = $("editSave"); btn.disabled = true; btn.textContent = "Guardando…";
+      try {
+        const r = await api(payload);
+        if (!r.ok) throw new Error(r.error || "error");
+        $("editCard").classList.add("hidden");
+        await fetchList();
+      } catch (err) { showBanner("❌ No se pudo guardar el cambio.", "err"); }
+      finally { btn.disabled = false; btn.textContent = "Guardar cambios"; }
+    });
+    $("editDelete").addEventListener("click", () => doDelete(Number($("editDelete").dataset.idx)));
+
+    async function doDelete(i) {
+      const v = CURRENT.votantes[i];
+      if (!confirm("¿Eliminar a " + (v.votanteNombre || "este votante") + "? Esta acción no se puede deshacer.")) return;
+      try {
+        const r = await api({ action: "delete", id: v.id });
+        if (!r.ok) throw new Error(r.error || "error");
+        $("editCard").classList.add("hidden");
+        await fetchList();
+      } catch (err) { showBanner("❌ No se pudo eliminar.", "err"); }
+    }
+
+    // ---- Editar datos del líder ----
+    $("editLiderBtn").addEventListener("click", () => {
+      $("edLiderNombre").value = (CURRENT.lider && CURRENT.lider.liderNombre) || "";
+      $("edLiderCelular").value = (CURRENT.lider && CURRENT.lider.liderCelular) || "";
+      $("minePanel").classList.add("hidden");
+      $("liderEditCard").classList.remove("hidden");
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
+    $("liderEditCancel").addEventListener("click", () => { $("liderEditCard").classList.add("hidden"); $("minePanel").classList.remove("hidden"); });
+    $("liderEditSave").addEventListener("click", async () => {
+      const nombre = $("edLiderNombre").value.trim();
+      const cel = $("edLiderCelular").value.trim();
+      if (nombre === "") { markBad($("edLiderNombre"), true); return; }
+      if (cel && !isNum(cel)) { markBad($("edLiderCelular"), true); return; }
+      const btn = $("liderEditSave"); btn.disabled = true; btn.textContent = "Guardando…";
+      try {
+        const r = await api({ action: "updateLider", liderCedula: CURRENT.cedula, liderNombre: nombre, liderCelular: cel });
+        if (!r.ok) throw new Error(r.error || "error");
+        // refleja el cambio en este dispositivo si es el mismo líder
+        const saved = getLider();
+        if (saved && saved.liderCedula === CURRENT.cedula) setLider({ liderNombre: nombre, liderCedula: CURRENT.cedula, liderCelular: cel });
+        $("liderEditCard").classList.add("hidden");
+        await fetchList();
+      } catch (err) { showBanner("❌ No se pudo actualizar tus datos.", "err"); }
+      finally { btn.disabled = false; btn.textContent = "Guardar"; }
+    });
+    $("edLiderNombre").addEventListener("input", e => e.target.classList.remove("bad"));
+    $("edLiderCelular").addEventListener("input", e => e.target.classList.remove("bad"));
 
-    loadLider();
+    // ---------- init ----------
+    loadLiderIntoForm();
   </script>
 </body>
 </html>

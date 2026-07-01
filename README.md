@@ -13,7 +13,11 @@ líder que no se vuelven a escribir** en cada registro.
 - El **líder se guarda en el dispositivo**: solo lo escribe una vez y queda fijo.
 - Botón **"Registrar otro votante"**: limpia solo los datos del votante y deja
   el líder listo → registro en cadena, muy rápido desde el celular.
+- **Pestaña "Mis votantes"**: cada líder entra con su cédula y puede **ver, editar
+  o eliminar** los votantes a su nombre, y **actualizar sus propios datos** (nombre/
+  celular) en todos sus registros a la vez.
 - **Validación**: cédula y celular solo aceptan números; campos clave obligatorios.
+  Las cédulas se guardan como **texto** (conservan ceros a la izquierda).
 - El **total de votos por líder** ya no se escribe a mano: se cuenta solo en la hoja
   (una fila = un votante).
 
