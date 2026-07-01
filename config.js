@@ -4,8 +4,8 @@
 window.ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbzZY7f7f_aCJxgq3JdTnHp7ja0rJUIMk5YdYr3N3W_pkBy5LsqzAcBwVzAfVLJvzY0t/exec";
 
 // Encabezado del formulario. Cambia estos textos por el nombre de tu campaña.
-window.CAMPAIGN_TITLE = "Registro de Votantes";
-window.CAMPAIGN_SUBTITLE = "Diligencia una persona por cada envío";
+window.CAMPAIGN_TITLE = "UN LUGAR PARA LA VIDA";
+window.CAMPAIGN_SUBTITLE = "Inscripción de votantes · Elecciones Regionales 2027";
 
 // Opciones de los menús desplegables (edítalas libremente).
 window.ROLES = ["Líder Familiar", "Líder Comunitario", "Votante"];
