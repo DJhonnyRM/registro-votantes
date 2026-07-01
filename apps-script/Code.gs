@@ -134,11 +134,15 @@ function listRecs_(d) {
   let lider = null;
   const personas = [];
   rows.forEach(function (r) {
-    if (String(r[COL_CEDULA_LIDER - 1]).trim() !== cedula) return;
-    if (!lider) lider = { liderNombre: r[3], liderCedula: String(r[4]), liderCelular: String(r[5]) };
+    const cedLider = String(r[COL_CEDULA_LIDER - 1]).trim(); // Cédula líder (col E)
+    const cedResp = String(r[2]).trim();                     // Cédula responsable (col C)
+    // Coincide si eres el líder, o si es un votante individual (sin líder) que TÚ diligenciaste.
+    const match = cedLider === cedula || (cedLider === '' && cedResp === cedula);
+    if (!match) return;
+    if (!lider && cedLider) lider = { liderNombre: r[3], liderCedula: String(r[4]), liderCelular: String(r[5]) };
     personas.push({
       id: r[COL_ID - 1],
-      responsable: r[1],
+      responsable: r[1], sinLider: cedLider === '',
       rol: r[6], nombre: r[7], cedula: String(r[8]), lugarExpedicion: r[9],
       municipio: r[10], telefono: String(r[11]), profesion: r[12], lugarVota: r[13],
       compromiso: r[14], compDescripcion: r[15], compPlazo: r[16],

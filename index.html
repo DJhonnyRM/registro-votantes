@@ -96,22 +96,31 @@
           <h2>👤 Quién registra</h2>
           <p class="sub">Se guarda en este dispositivo: no lo repites en el próximo registro.</p>
 
-          <div class="grp">Líder a cargo de los votos</div>
-          <label>Nombre completo del líder <span class="req">*</span></label>
-          <input id="liderNombre" autocomplete="name" required />
-          <div class="hint">Escribe el nombre.</div>
-          <label>Cédula del líder <span class="req">*</span></label>
-          <input id="liderCedula" inputmode="numeric" pattern="[0-9]*" required />
-          <div class="hint">Solo números.</div>
-          <label>Celular del líder <span class="opt">(opcional)</span></label>
-          <input id="liderCelular" inputmode="numeric" pattern="[0-9]*" />
-          <div class="hint">Solo números.</div>
+          <label>Tipo de registro</label>
+          <select id="tipoRegistro">
+            <option value="lider">Votante de un líder</option>
+            <option value="individual">Votante individual (sin líder)</option>
+          </select>
+
+          <div id="liderGroup">
+            <div class="grp">Líder a cargo de los votos</div>
+            <label>Nombre completo del líder <span class="req">*</span></label>
+            <input id="liderNombre" autocomplete="name" />
+            <div class="hint">Escribe el nombre.</div>
+            <label>Cédula del líder <span class="req">*</span></label>
+            <input id="liderCedula" inputmode="numeric" pattern="[0-9]*" />
+            <div class="hint">Solo números.</div>
+            <label>Celular del líder <span class="opt">(opcional)</span></label>
+            <input id="liderCelular" inputmode="numeric" pattern="[0-9]*" />
+            <div class="hint">Solo números.</div>
+          </div>
 
           <div class="grp">Diligenciado por</div>
-          <p class="note">Quién está llenando el formulario. Déjalo vacío si es el mismo líder.</p>
-          <label>Nombre de quien diligencia <span class="opt">(opcional)</span></label>
+          <p class="note" id="respNote">Quién está llenando el formulario. Déjalo vacío si es el mismo líder.</p>
+          <label>Nombre de quien diligencia <span id="respReq" class="opt">(opcional)</span></label>
           <input id="respNombre" />
-          <label>Cédula de quien diligencia <span class="opt">(opcional)</span></label>
+          <div class="hint">Escribe el nombre.</div>
+          <label>Cédula de quien diligencia <span id="respReq2" class="opt">(opcional)</span></label>
           <input id="respCedula" inputmode="numeric" pattern="[0-9]*" />
           <div class="hint">Solo números.</div>
 
@@ -239,6 +248,7 @@
     // ---------- Generador de campos ----------
     function makeField(prefix, f, value) {
       const w = document.createElement("div");
+      w.id = prefix + f.k + "_wrap";
       const lab = document.createElement("label");
       lab.innerHTML = f.label + (f.req ? ' <span class="req">*</span>' : ' <span class="opt">(opcional)</span>');
       w.appendChild(lab);
@@ -291,11 +301,29 @@
     }
 
     // ---------- Perfil guardado ----------
+    const LOCK_FIELDS = ["liderNombre", "liderCedula", "liderCelular"];
     function getPerfil() { return JSON.parse(localStorage.getItem("perfil") || "null"); }
     function setPerfil(p) { localStorage.setItem("perfil", JSON.stringify(p)); }
-    function loadPerfilIntoForm() { const p = getPerfil(); if (!p) return; PERFIL_FIELDS.forEach(f => { if (p[f] != null) $(f).value = p[f]; }); lockPerfil(true); }
-    function lockPerfil(on) { PERFIL_FIELDS.forEach(f => $(f).readOnly = on); $("liderLock").classList.toggle("show", on); }
+    function loadPerfilIntoForm() {
+      const p = getPerfil(); if (!p) return;
+      PERFIL_FIELDS.forEach(f => { if (p[f] != null) $(f).value = p[f]; });
+      if (p.tipo) $("tipoRegistro").value = p.tipo;
+      applyModo();
+      if (p.liderNombre) lockPerfil(true);
+    }
+    function lockPerfil(on) { LOCK_FIELDS.forEach(f => $(f).readOnly = on); $("liderLock").classList.toggle("show", on); }
     $("changeLider").addEventListener("click", () => { lockPerfil(false); localStorage.removeItem("perfil"); $("liderNombre").focus(); });
+
+    // Modo: votante de un líder vs votante individual (sin líder)
+    function applyModo() {
+      const ind = $("tipoRegistro").value === "individual";
+      $("liderGroup").classList.toggle("hidden", ind);
+      const rolWrap = $("r_rol_wrap"); if (rolWrap) rolWrap.classList.toggle("hidden", ind);
+      if (ind) { const rs = $("r_rol"); if (rs) rs.value = "Votante"; }
+      $("respNote").textContent = ind ? "Quién está registrando a este votante." : "Quién está llenando el formulario. Déjalo vacío si es el mismo líder.";
+      ["respReq", "respReq2"].forEach(id => { $(id).className = ind ? "req" : "opt"; $(id).textContent = ind ? "*" : "(opcional)"; });
+    }
+    $("tipoRegistro").addEventListener("change", applyModo);
 
     // ---------- Tabs ----------
     function switchTab(which) {
@@ -312,7 +340,9 @@
     // ---------- Registrar ----------
     function validatePerfil() {
       let ok = true;
-      ["liderNombre", "liderCedula"].forEach(id => { ok = markBad($(id), $(id).value.trim() === "") && ok; });
+      const ind = $("tipoRegistro").value === "individual";
+      if (ind) ["respNombre", "respCedula"].forEach(id => { ok = markBad($(id), $(id).value.trim() === "") && ok; });
+      else ["liderNombre", "liderCedula"].forEach(id => { ok = markBad($(id), $(id).value.trim() === "") && ok; });
       ["liderCedula", "liderCelular", "respCedula"].forEach(id => { const el = $(id); if (el.value.trim() && !isNum(el.value)) ok = markBad(el, true) && ok; });
       return ok;
     }
@@ -324,14 +354,19 @@
       if (!ok) { document.querySelector(".bad")?.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
       if (!configured()) return;
 
+      const modo = $("tipoRegistro").value;
+      const ind = modo === "individual";
       const data = { action: "create" };
       PERFIL_FIELDS.forEach(f => data[f] = $(f).value.trim());
       gather("r_", PERSONA_DEF, data);
+      if (ind) { data.liderNombre = ""; data.liderCedula = ""; data.liderCelular = ""; data.rol = "Votante"; }
       data.compromiso = $("r_compromiso").value;
       if (data.compromiso === "Sí") gather("r_", COMP_DEF, data);
+      // responsable: en modo líder puede ir vacío (= líder); en individual es obligatorio
       data.responsableNombre = data.respNombre || data.liderNombre;
       data.responsableCedula = data.respCedula || data.liderCedula;
-      setPerfil({ liderNombre: data.liderNombre, liderCedula: data.liderCedula, liderCelular: data.liderCelular, respNombre: data.respNombre, respCedula: data.respCedula });
+      // guarda el líder aunque este registro sea individual (para no reescribirlo luego)
+      setPerfil({ tipo: modo, liderNombre: $("liderNombre").value.trim(), liderCedula: $("liderCedula").value.trim(), liderCelular: $("liderCelular").value.trim(), respNombre: data.respNombre, respCedula: data.respCedula });
 
       const btn = $("submitBtn"); btn.disabled = true; btn.textContent = "Guardando…";
       try {
@@ -345,7 +380,7 @@
     });
     $("another").addEventListener("click", () => {
       renderFields("r_", $("regPersona"), PERSONA_DEF); renderComp("r_", $("regComp"));
-      lockPerfil(true);
+      applyModo(); lockPerfil(true);
       $("ok").style.display = "none"; $("form").style.display = "block";
       $("r_nombre").focus(); window.scrollTo({ top: 0, behavior: "smooth" });
     });
@@ -375,7 +410,7 @@
       $("minePanel").classList.remove("hidden");
       const l = CURRENT.lider;
       if (l) { $("lbName").textContent = l.liderNombre || "(sin nombre)"; $("lbMeta").textContent = "Cédula " + l.liderCedula + (l.liderCelular ? " · Cel " + l.liderCelular : ""); }
-      else { $("lbName").textContent = "Cédula " + CURRENT.cedula; $("lbMeta").textContent = "Aún sin registros"; }
+      else { $("lbName").textContent = "Cédula " + CURRENT.cedula; $("lbMeta").textContent = CURRENT.personas.length ? "Registros a esta cédula" : "Aún sin registros"; }
       const n = CURRENT.personas.length;
       $("mineCount").textContent = n + (n === 1 ? " persona a su nombre" : " personas a su nombre");
       const list = $("voterList"); list.innerHTML = "";
@@ -386,7 +421,7 @@
         card.innerHTML = '<div class="nm"></div><div class="dt"></div><div class="row-btns"><button class="ghost">✏️ Editar</button><button class="danger">🗑️ Eliminar</button></div>';
         card.querySelector(".nm").textContent = v.nombre || "(sin nombre)";
         if (v.rol) { const b = document.createElement("span"); b.className = "rol"; b.textContent = v.rol; card.querySelector(".nm").appendChild(b); }
-        let dt = "CC " + v.cedula + (v.lugarVota ? " · Vota: " + v.lugarVota : "");
+        let dt = "CC " + v.cedula + (v.sinLider ? " · individual" : "") + (v.lugarVota ? " · Vota: " + v.lugarVota : "");
         if (v.compromiso === "Sí") dt += " · Compromiso: " + (v.compEstado || "—");
         if (v.responsable && liderName && v.responsable.trim() !== liderName.trim()) dt += " · diligenció: " + v.responsable;
         if (v.fecha) dt += " · " + v.fecha;
@@ -456,6 +491,7 @@
     $("form").addEventListener("input", e => e.target.classList.remove("bad"));
     renderFields("r_", $("regPersona"), PERSONA_DEF);
     renderComp("r_", $("regComp"));
+    applyModo();
     loadPerfilIntoForm();
   </script>
 </body>
