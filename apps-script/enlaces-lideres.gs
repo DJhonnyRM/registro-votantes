@@ -237,3 +237,54 @@ function hacerLiderOpcional() {
   });
   Logger.log('✅ Campos de responsable y líder puestos como opcionales: ' + n);
 }
+
+/* ===== LISTA DE REGISTROS (pestaña limpia, desde las respuestas del formulario) =====
+ * generarListaRegistros   → arma/actualiza la pestaña "Lista de registros".
+ * instalarListaRegistros  → además la actualiza sola en CADA envío del formulario.
+ */
+var VOT = { nombre: 380578748, cedula: 1642034454, lugarExp: 975084577, municipio: 64184207, tel: 899982491, prof: 785926825, vota: 1344921034 };
+var LID = { nombre: 1180528852, cedula: 798496070, rol: 1746164794 };
+var CMP = { comp: 76192205, desc: 1025585613, plazo: 1831686288, estado: 2099935204, fecha: 625201566 };
+var RESP_NOMBRE = 1625673428;
+
+function generarListaRegistros() {
+  var form = FormApp.openById(FORM_ID);
+  var ss = SpreadsheetApp.openById(form.getDestinationId());
+  var sh = ss.getSheetByName('Lista de registros') || ss.insertSheet('Lista de registros');
+  sh.clear();
+  var headers = ['Fecha', 'Líder', 'Cédula líder', 'Rol (líder)', 'Votante', 'Cédula votante',
+    'Lugar de expedición', 'Municipio', 'Teléfono', 'Profesión', 'Lugar donde vota',
+    '¿Compromiso?', 'Descripción', 'Plazo', 'Estado', 'Fecha cumplimiento', 'Diligenció'];
+  sh.appendRow(headers);
+  sh.setFrozenRows(1);
+
+  var filas = form.getResponses().map(function (resp) {
+    var m = {}, tit = {};
+    resp.getItemResponses().forEach(function (ir) {
+      m[ir.getItem().getId()] = ir.getResponse();
+      tit[ir.getItem().getTitle()] = ir.getResponse();
+    });
+    var drop = tit['Líder al que perteneces'] || '';
+    var lNom = m[LID.nombre] || '', lCed = m[LID.cedula] || '';
+    if (drop) { var p = String(drop).split(' – '); lNom = p[0]; lCed = p[1] || lCed; }
+    return [
+      resp.getTimestamp(), lNom, lCed, (m[LID.rol] || ''),
+      (m[VOT.nombre] || ''), (m[VOT.cedula] || ''), (m[VOT.lugarExp] || ''), (m[VOT.municipio] || ''),
+      (m[VOT.tel] || ''), (m[VOT.prof] || ''), (m[VOT.vota] || ''),
+      (m[CMP.comp] || ''), (m[CMP.desc] || ''), (m[CMP.plazo] || ''), (m[CMP.estado] || ''), (m[CMP.fecha] || ''),
+      (m[RESP_NOMBRE] || '')
+    ];
+  });
+  if (filas.length) sh.getRange(2, 1, filas.length, headers.length).setValues(filas);
+  ['C:C', 'F:F', 'I:I'].forEach(function (c) { sh.getRange(c).setNumberFormat('@'); });
+  Logger.log('✅ Lista de registros: ' + filas.length + ' fila(s).');
+}
+
+function instalarListaRegistros() {
+  generarListaRegistros();
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'generarListaRegistros') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('generarListaRegistros').forForm(FormApp.openById(FORM_ID)).onFormSubmit().create();
+  Logger.log('✅ Lista de registros lista; se actualiza en cada envío del formulario.');
+}
