@@ -28,7 +28,7 @@ var ESTADOS = ['Pendiente', 'En proceso', 'Cumplido', 'No cumplido'];
 var T = {
   respDrop: 'Responsable (elige de la lista)',
   respNew: 'Si no estás en la lista, escribe tu nombre completo',
-  liderExiste: '¿El líder ya está registrado?',
+  liderExiste: '¿El votante pertenece a un líder?',
   liderDrop: 'Líder al que pertenece',
   liderNombre: 'Nombre completo del líder',
   liderCedula: 'Cédula del líder'
@@ -47,7 +47,7 @@ function crearFormularioNuevo() {
     .setChoiceValues(['(aún no hay responsables registrados)']);
   form.addTextItem().setTitle(T.respNew).setRequired(false);
   var qLider = form.addMultipleChoiceItem().setTitle(T.liderExiste).setRequired(true)
-    .setHelpText('Si es el primer votante de un líder, elige "No, es un líder nuevo".');
+    .setHelpText('Elige "votante individual" si no pertenece a ningún líder.');
 
   // ── Página 2A: elegir líder existente ──
   var pbExiste = form.addPageBreakItem().setTitle('Elegir líder').setHelpText('Elige el líder al que pertenece este votante.');
@@ -89,8 +89,9 @@ function crearFormularioNuevo() {
 
   // ── Ramificaciones ──
   qLider.setChoices([
-    qLider.createChoice('Sí, elegir de la lista', pbExiste),
-    qLider.createChoice('No, es un líder nuevo', pbNuevo)
+    qLider.createChoice('Sí, a un líder ya registrado', pbExiste),
+    qLider.createChoice('Sí, a un líder nuevo', pbNuevo),
+    qLider.createChoice('No, es un votante individual', pbVot) // salta directo al votante, sin líder
   ]);
   pbExiste.setGoToPage(pbVot); // tras elegir líder existente, salta al votante (omite líder nuevo)
   pbNuevo.setGoToPage(pbVot);  // tras crear líder nuevo, sigue al votante
