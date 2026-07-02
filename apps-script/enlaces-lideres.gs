@@ -288,3 +288,54 @@ function instalarListaRegistros() {
   ScriptApp.newTrigger('generarListaRegistros').forForm(FormApp.openById(FORM_ID)).onFormSubmit().create();
   Logger.log('✅ Lista de registros lista; se actualiza en cada envío del formulario.');
 }
+
+/* ===== DESPLEGABLE DE RESPONSABLES (quién diligencia; se actualiza desde la pestaña "Responsables") =====
+ * Ejecuta  instalarDesplegableResponsables  UNA vez. Crea el desplegable arriba del
+ * formulario y un disparador que lo refresca al editar la pestaña "Responsables".
+ */
+var TITULO_DESPLEGABLE_RESP = 'Responsable del registro';
+
+function instalarDesplegableResponsables() {
+  actualizarDesplegableResponsables();
+  var ssId = FormApp.openById(FORM_ID).getDestinationId();
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'actualizarDesplegableResponsables') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('actualizarDesplegableResponsables').forSpreadsheet(ssId).onEdit().create();
+  Logger.log('✅ Desplegable "' + TITULO_DESPLEGABLE_RESP + '" listo. Llena la pestaña "Responsables" y se actualiza solo.');
+}
+
+function actualizarDesplegableResponsables() {
+  var form = FormApp.openById(FORM_ID);
+  var ss = SpreadsheetApp.openById(form.getDestinationId());
+  var sh = ss.getSheetByName('Responsables');
+  if (!sh) {
+    sh = ss.insertSheet('Responsables');
+    sh.appendRow(['Nombre del responsable', 'Cédula', 'Teléfono']);
+    sh.setFrozenRows(1);
+    sh.getRange('B:C').setNumberFormat('@');
+    return; // recién creada y vacía: aún no hay opciones
+  }
+  if (sh.getLastRow() < 2) return;
+  var vals = sh.getDataRange().getValues();
+  var head = vals[0];
+  var iN = head.indexOf('Nombre del responsable'); if (iN < 0) iN = 0;
+  var iC = head.indexOf('Cédula');
+  var opciones = [];
+  for (var r = 1; r < vals.length; r++) {
+    var n = String(vals[r][iN] || '').trim();
+    var c = iC >= 0 ? String(vals[r][iC] || '').trim() : '';
+    if (n) opciones.push(c ? (n + ' – ' + c) : n);
+  }
+  opciones = opciones.filter(function (v, i, a) { return a.indexOf(v) === i; });
+  if (opciones.length) desplegableResp_(form).setChoiceValues(opciones);
+}
+
+function desplegableResp_(form) {
+  var items = form.getItems(FormApp.ItemType.LIST);
+  for (var i = 0; i < items.length; i++)
+    if (items[i].getTitle() === TITULO_DESPLEGABLE_RESP) return items[i].asListItem();
+  var it = form.addListItem().setTitle(TITULO_DESPLEGABLE_RESP).setHelpText('Elige quién está diligenciando el registro.').setRequired(true);
+  form.moveItem(it.getIndex(), 0);
+  return it;
+}
