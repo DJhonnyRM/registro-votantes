@@ -161,3 +161,48 @@ function configurarRamificacionCompromiso() {
 
   Logger.log('✅ "Sí" pide los datos del compromiso; las demás opciones envían el formulario.');
 }
+
+/* ===== LISTA DESPLEGABLE DE LÍDERES (se actualiza sola desde la pestaña "Líderes") =====
+ * Ejecuta  instalarDesplegableLideres  UNA vez. Crea el desplegable arriba del
+ * formulario y deja un disparador que lo refresca al editar la pestaña "Líderes".
+ */
+var TITULO_DESPLEGABLE = 'Líder al que perteneces';
+
+function instalarDesplegableLideres() {
+  actualizarDesplegableLideres();
+  var ssId = FormApp.openById(FORM_ID).getDestinationId();
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'actualizarDesplegableLideres') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('actualizarDesplegableLideres').forSpreadsheet(ssId).onEdit().create();
+  Logger.log('✅ Desplegable "' + TITULO_DESPLEGABLE + '" listo. Se actualiza solo al editar la pestaña "Líderes".');
+}
+
+function actualizarDesplegableLideres() {
+  var form = FormApp.openById(FORM_ID);
+  var ss = SpreadsheetApp.openById(form.getDestinationId());
+  var sh = ss.getSheetByName('Líderes');
+  if (!sh || sh.getLastRow() < 2) return;
+  var vals = sh.getDataRange().getValues();
+  var head = vals[0];
+  var iN = head.indexOf('Nombre del líder'); if (iN < 0) iN = 0;
+  var iC = head.indexOf('Cédula del líder');
+  var opciones = [];
+  for (var r = 1; r < vals.length; r++) {
+    var n = String(vals[r][iN] || '').trim();
+    var c = iC >= 0 ? String(vals[r][iC] || '').trim() : '';
+    if (!n) continue;
+    opciones.push(c ? (n + ' – ' + c) : n);
+  }
+  opciones = opciones.filter(function (v, i, a) { return a.indexOf(v) === i; });
+  if (opciones.length) desplegable_(form).setChoiceValues(opciones);
+}
+
+function desplegable_(form) {
+  var items = form.getItems(FormApp.ItemType.LIST);
+  for (var i = 0; i < items.length; i++)
+    if (items[i].getTitle() === TITULO_DESPLEGABLE) return items[i].asListItem();
+  var it = form.addListItem().setTitle(TITULO_DESPLEGABLE).setHelpText('Elige tu líder de la lista.').setRequired(true);
+  form.moveItem(it.getIndex(), 0);
+  return it;
+}
