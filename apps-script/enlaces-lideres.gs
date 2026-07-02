@@ -206,3 +206,34 @@ function desplegable_(form) {
   form.moveItem(it.getIndex(), 0);
   return it;
 }
+
+/**
+ * Deja OPCIONALES los campos del responsable y del líder (secciones 2 y 3),
+ * para el flujo de enlace único + desplegable. Los campos del votante NO se tocan.
+ * Ejecutar UNA vez. (Reversible: cambia false por true si quieres volverlos obligatorios.)
+ */
+var IDS_LIDER_OPCIONAL = [
+  494433092, 1625673428, 1912956318, 1670270652,               // Responsable
+  1180528852, 798496070, 1219038157, 603032919, 421600939,      // Líder
+  1475911525, 1746164794, 464884929, 1091479994
+];
+
+function hacerLiderOpcional() {
+  var form = FormApp.openById(FORM_ID);
+  var n = 0;
+  IDS_LIDER_OPCIONAL.forEach(function (id) {
+    var it = form.getItemById(id);
+    if (!it) return;
+    var t = String(it.getType());
+    try {
+      if (t === 'TEXT') it.asTextItem().setRequired(false);
+      else if (t === 'PARAGRAPH_TEXT') it.asParagraphTextItem().setRequired(false);
+      else if (t === 'MULTIPLE_CHOICE') it.asMultipleChoiceItem().setRequired(false);
+      else if (t === 'LIST') it.asListItem().setRequired(false);
+      else if (t === 'DATE') it.asDateItem().setRequired(false);
+      else if (t === 'CHECKBOX') it.asCheckboxItem().setRequired(false);
+      n++;
+    } catch (e) {}
+  });
+  Logger.log('✅ Campos de responsable y líder puestos como opcionales: ' + n);
+}
