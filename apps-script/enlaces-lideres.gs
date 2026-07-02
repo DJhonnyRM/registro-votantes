@@ -134,3 +134,30 @@ function respuestaItem_(item, val) {
   } catch (e) { return null; }
   return null;
 }
+
+/**
+ * Ramificación del compromiso (ejecutar UNA vez):
+ * "Sí" → pide los datos del compromiso;  "No"/"NS/NR" → envía el formulario.
+ */
+var ID_COMPROMISO = 76192205; // pregunta "COMPROMISO"
+
+function configurarRamificacionCompromiso() {
+  var form = FormApp.openById(FORM_ID);
+  var pb = null;
+  form.getItems(FormApp.ItemType.PAGE_BREAK).forEach(function (it) {
+    if (/datos del compromiso/i.test(it.getTitle() || '')) pb = it.asPageBreakItem();
+  });
+  if (!pb) throw new Error('No encontré la sección "Datos del compromiso".');
+
+  var comp = form.getItemById(ID_COMPROMISO).asMultipleChoiceItem();
+  var nuevas = comp.getChoices().map(function (c) {
+    var v = c.getValue();
+    var destino = /^\s*s[ií]\b/i.test(v) ? pb : FormApp.PageNavigationType.SUBMIT;
+    return comp.createChoice(v, destino);
+  });
+  comp.setChoices(nuevas);
+  comp.setRequired(true);
+  pb.setGoToPage(FormApp.PageNavigationType.SUBMIT);
+
+  Logger.log('✅ "Sí" pide los datos del compromiso; las demás opciones envían el formulario.');
+}
