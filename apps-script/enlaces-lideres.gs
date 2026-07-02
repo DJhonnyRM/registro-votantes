@@ -6,34 +6,38 @@
  * votante y, con "Enviar otra respuesta", registra varios — todos a su nombre.
  *
  * ─────────────────────────────────────────────────────────────────────────
- * PASO 1 — Identificar los campos del líder
+ * El MAPEO de abajo YA ESTÁ configurado para tu formulario. Solo tienes que:
  *   1. Entra a https://script.google.com → Nuevo proyecto → pega TODO esto → Guarda.
- *   2. Elige la función  listarCampos  y pulsa ▶ Ejecutar (autoriza si lo pide).
- *   3. Abre  Ver → Registros (Ejecución). Verás la lista de campos con su ID y,
- *      al final, un "MAPEO SUGERIDO" listo para copiar.
- *   4. Del bloque MAPEO, deja SOLO las líneas de los campos del líder
- *      (los que están bajo la sección "Datos del Líder o Votante", y el
- *      responsable si quieres) y pégalas dentro de MAPEO aquí abajo. Ajusta el
- *      texto de "col" a un nombre corto de columna. Guarda.
+ *   2. Ejecuta  generarEnlacesLideres  (autoriza si lo pide). Crea la pestaña
+ *      "Líderes" en tu hoja de respuestas.
+ *   3. En esa pestaña escribe un líder por fila (una columna por dato) y vuelve a
+ *      ejecutar  generarEnlacesLideres . En la última columna sale el enlace de
+ *      cada líder, listo para repartir.
  *
- *      👉 Si prefieres, pásame el registro y te devuelvo el MAPEO ya listo.
- *
- * PASO 2 — Generar los enlaces
- *   5. Ejecuta  generarEnlacesLideres . Se crea/usa la pestaña "Líderes".
- *   6. En esa pestaña, escribe un líder por fila (una columna por cada campo del
- *      MAPEO) y vuelve a ejecutar  generarEnlacesLideres .
- *   7. En la última columna aparece el enlace de cada líder. ¡Repártelos!
+ * (Opcional) La función  listarCampos  muestra todos los campos del form con su
+ * ID, por si algún día cambias la estructura y quieres rehacer el MAPEO.
  * ─────────────────────────────────────────────────────────────────────────
  */
 
 var FORM_ID = '1KBT7MXvb-czEhbYqrRp3CJk46T2UiMi38vhNjzwEaug';
 
-// ⬇️ Rellena esto con las líneas del "MAPEO SUGERIDO" (solo los campos del líder).
-// 'col' = nombre de la columna en la hoja "Líderes"; 'itemId' = id del campo en el form.
+// ✅ YA CONFIGURADO para tu formulario "INSCRIPCIÓN DE VOTANTES".
+// Pre-rellena al RESPONSABLE y al LÍDER con los mismos datos del líder (porque él
+// registra), así el líder solo llena al votante. Varios itemId comparten columna.
 var MAPEO = [
-  // { col: 'Nombre del líder',   itemId: 000000000 },
-  // { col: 'Cédula del líder',   itemId: 000000000 },
-  // { col: 'Teléfono del líder', itemId: 000000000 },
+  // Sección "Datos del responsable del registro" (se llena con el líder)
+  { col: 'Nombre del líder',    itemId: 1625673428 },
+  { col: 'Cédula del líder',    itemId: 1912956318 },
+  { col: 'Teléfono del líder',  itemId: 1670270652 },
+  // Sección "Datos del Líder o Votante"
+  { col: 'Nombre del líder',    itemId: 1180528852 },
+  { col: 'Cédula del líder',    itemId: 798496070 },
+  { col: 'Teléfono del líder',  itemId: 421600939 },
+  { col: 'Lugar de expedición', itemId: 1219038157 },
+  { col: 'Municipio',           itemId: 603032919 },
+  { col: 'Profesión/oficio',    itemId: 1475911525 },
+  { col: 'Rol en su comunidad', itemId: 1746164794 }, // debe coincidir EXACTO con una opción (ej: "Líder Comunitario")
+  { col: 'Lugar donde vota',    itemId: 464884929 },
 ];
 
 var COL_ENLACE = 'Enlace para registrar votantes';
@@ -92,6 +96,13 @@ function generarEnlacesLideres() {
 
 /* ───── helpers ───── */
 
+// Columnas únicas de la pestaña "Líderes" (varios itemId pueden compartir columna).
+function columnasUnicas_() {
+  var vistas = {}, out = [];
+  MAPEO.forEach(function (m) { if (!vistas[m.col]) { vistas[m.col] = 1; out.push(m.col); } });
+  return out;
+}
+
 // Crea/usa la pestaña "Líderes" en la hoja de respuestas del formulario.
 function hojaLideres_(form) {
   var destId = form.getDestinationId();
@@ -100,13 +111,12 @@ function hojaLideres_(form) {
   var sh = ss.getSheetByName('Líderes');
   if (!sh) {
     sh = ss.insertSheet('Líderes');
-    var head = MAPEO.map(function (m) { return m.col; }).concat([COL_ENLACE]);
-    sh.appendRow(head);
+    var cols = columnasUnicas_();
+    sh.appendRow(cols.concat([COL_ENLACE]));
     sh.setFrozenRows(1);
-    // columnas de cédula/teléfono como texto
-    for (var c = 1; c <= MAPEO.length; c++) {
-      if (/c[eé]dula|tel[eé]fono|celular/i.test(MAPEO[c - 1].col)) sh.getRange(1, c, sh.getMaxRows()).setNumberFormat('@');
-    }
+    cols.forEach(function (c, i) {
+      if (/c[eé]dula|tel[eé]fono|celular/i.test(c)) sh.getRange(1, i + 1, sh.getMaxRows()).setNumberFormat('@');
+    });
     Logger.log('Pestaña "Líderes" creada en: ' + ss.getUrl());
   }
   return sh;
