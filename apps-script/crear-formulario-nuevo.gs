@@ -28,6 +28,7 @@ var ESTADOS = ['Pendiente', 'En proceso', 'Cumplido', 'No cumplido'];
 var T = {
   respDrop: 'Responsable (elige de la lista)',
   respNew: 'Si no estás en la lista, escribe tu nombre completo',
+  respCedula: 'Cédula de quien diligencia',
   liderExiste: '¿El votante pertenece a un líder?',
   liderDrop: 'Líder al que pertenece',
   liderNombre: 'Nombre completo del líder',
@@ -46,6 +47,7 @@ function crearFormularioNuevo() {
     .setHelpText('Si aún no apareces en la lista, déjalo vacío y escribe tu nombre abajo.')
     .setChoiceValues(['(aún no hay responsables registrados)']);
   form.addTextItem().setTitle(T.respNew).setRequired(false);
+  nfAddT_(form, T.respCedula, false, num).setHelpText('Cédula de quien está diligenciando (si escribiste tu nombre arriba).');
   var qLider = form.addMultipleChoiceItem().setTitle(T.liderExiste).setRequired(true)
     .setHelpText('Elige "votante individual" si no pertenece a ningún líder.');
 
@@ -133,7 +135,7 @@ function nfActualizarDesplegables() {
     var tit = {};
     resp.getItemResponses().forEach(function (ir) { tit[ir.getItem().getTitle()] = ir.getResponse(); });
     var lid = String(tit[T.liderDrop] || '').trim() || nfArmar_(tit[T.liderNombre], tit[T.liderCedula]);
-    var res = String(tit[T.respDrop] || '').trim() || String(tit[T.respNew] || '').trim();
+    var res = String(tit[T.respDrop] || '').trim() || nfArmar_(tit[T.respNew], tit[T.respCedula]);
     if (lid && lid.charAt(0) !== '(') lideres[lid] = 1;
     if (res && res.charAt(0) !== '(') responsables[res] = 1;
   });
