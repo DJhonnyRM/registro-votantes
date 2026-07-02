@@ -339,3 +339,54 @@ function desplegableResp_(form) {
   form.moveItem(it.getIndex(), 0);
   return it;
 }
+
+/* ===== DESPLEGABLES AUTOMÁTICOS (se llenan desde los REGISTROS del formulario) =====
+ * Ejecuta  instalarDesplegablesAuto  UNA vez. Los desplegables de líder y responsable
+ * se llenan con quienes ya se registraron; los NUEVOS se escriben en los campos de
+ * texto (opcionales) y aparecen en la lista tras enviar. Se actualiza en cada envío.
+ */
+function instalarDesplegablesAuto() {
+  var form = FormApp.openById(FORM_ID);
+  var dL = desplegable_(form);
+  dL.setRequired(false);
+  dL.setHelpText('Elige tu líder de la lista. Si es NUEVO, déjalo vacío y escríbelo en la sección del líder.');
+  var dR = desplegableResp_(form);
+  dR.setRequired(false);
+  dR.setHelpText('Elige quién diligencia. Si es NUEVO, déjalo vacío y escríbelo en la sección del responsable.');
+
+  actualizarDesplegablesDesdeRegistros();
+
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    var f = t.getHandlerFunction();
+    if (f === 'actualizarDesplegableLideres' || f === 'actualizarDesplegableResponsables' || f === 'actualizarDesplegablesDesdeRegistros')
+      ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('actualizarDesplegablesDesdeRegistros').forForm(form).onFormSubmit().create();
+  Logger.log('✅ Desplegables automáticos listos: se llenan desde los registros en cada envío.');
+}
+
+function actualizarDesplegablesDesdeRegistros() {
+  var form = FormApp.openById(FORM_ID);
+  var lideres = {}, responsables = {};
+  form.getResponses().forEach(function (resp) {
+    var m = {}, tit = {};
+    resp.getItemResponses().forEach(function (ir) {
+      m[ir.getItem().getId()] = ir.getResponse();
+      tit[ir.getItem().getTitle()] = ir.getResponse();
+    });
+    var lid = String(tit[TITULO_DESPLEGABLE] || '').trim() || armar_(m[LID.nombre], m[LID.cedula]);
+    var res = String(tit[TITULO_DESPLEGABLE_RESP] || '').trim() || armar_(m[1625673428], m[1912956318]);
+    if (lid) lideres[lid] = 1;
+    if (res) responsables[res] = 1;
+  });
+  var lL = Object.keys(lideres), lR = Object.keys(responsables);
+  if (lL.length) desplegable_(form).setChoiceValues(lL);
+  if (lR.length) desplegableResp_(form).setChoiceValues(lR);
+  Logger.log('✅ Líderes: ' + lL.length + ' · Responsables: ' + lR.length);
+}
+
+function armar_(nombre, cedula) {
+  nombre = String(nombre || '').trim();
+  cedula = String(cedula || '').trim();
+  return nombre ? (cedula ? nombre + ' – ' + cedula : nombre) : '';
+}
